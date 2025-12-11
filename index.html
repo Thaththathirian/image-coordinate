@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="%BASE_URL%logo-dark.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Ensure folder builds resolve assets correctly when accessed without a trailing slash
+      if (
+        !location.pathname.endsWith("/") &&
+        !location.pathname.split("/").pop().includes(".")
+      ) {
+        location.replace(`${location.pathname}/${location.search}${location.hash}`);
+      }
+    </script>
     <title>Image coordinates</title>
   </head>
   <body>
