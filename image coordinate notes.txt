@@ -1,0 +1,11 @@
+This application helps you extract coordinates from technical diagrams and create responsive image maps:
+
+1. Upload your technical diagram using the button provided.
+2. Use the "Coordinate Extractor" to mark and identify points and shapes on your diagram.
+3. Set Shape type to circle(by default). Set radius to 12px(default) and adjust if needed. Set output format to JSON(default). Change Image name nearby table. This image is same as the filename when export.
+4. Double click the placed circle to edit number and press enter instead of clicking outside. You can also edit number inside table. Hold and drag to move the circle and always place circle accurately in the correct location. Zoom in the image to accurately place it if needed.
+5. Click action button in action coordinates table to delete any number.
+5. Finally check the data in JSON data at bottom before export.
+6. Click export JSON coordinate to export file. Before that check Image name and Output format was JSON.
+7. If want to upload next image, click Upload New Diagram button to upload next diagram.
+8. Use same file name for image and JSON.

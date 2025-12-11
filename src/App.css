@@ -1,0 +1,207 @@
+/* App.css */
+:root {
+  --primary-color: #2196F3;
+  --primary-dark: #1976D2;
+  --secondary-color: #f5f5f5;
+  --success-color: #4CAF50;
+  --danger-color: #f44336;
+  --warning-color: #ff9800;
+  --info-color: #03a9f4;
+  --text-color: #333;
+  --text-secondary: #666;
+  --border-color: #ddd;
+  --border-radius: 4px;
+  --box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  --transition-speed: 0.2s;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: #f9f9f9;
+}
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.app-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.app-header h1 {
+  margin-bottom: 15px;
+  color: var(--primary-dark);
+  font-size: 28px;
+}
+
+.mode-selector {
+  display: flex;
+  margin: 0 auto;
+  max-width: 500px;
+  margin-bottom: 10px;
+}
+
+.mode-button {
+  flex: 1;
+  padding: 10px 16px;
+  background-color: #e0e0e0;
+  color: var(--text-color);
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--transition-speed);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.mode-button:first-child {
+  border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+.mode-button:last-child {
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+.mode-button.active {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.app-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: 20px;
+}
+
+.upload-container {
+  text-align: center;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-container h2 {
+  margin-bottom: 10px;
+  color: var(--primary-dark);
+}
+
+.upload-container p {
+  margin-bottom: 20px;
+  color: var(--text-secondary);
+  max-width: 500px;
+}
+
+.file-input {
+  margin: 30px 0;
+  padding: 20px;
+  width: 300px;
+  background-color: var(--secondary-color);
+  border-radius: var(--border-radius);
+  border: 2px dashed var(--border-color);
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.file-input:hover, .file-input:focus {
+  border-color: var(--primary-color);
+  background-color: rgba(33, 150, 243, 0.05);
+}
+
+.tools-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tool-button, .import-label {
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color var(--transition-speed);
+  display: inline-block;
+  text-align: center;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tool-button:hover, .import-label:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 5px rgba(0,0,0,0.15);
+}
+
+.text-button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0 5px;
+  text-decoration: underline;
+}
+
+.text-button:hover {
+  color: var(--primary-dark);
+}
+
+.app-footer {
+  text-align: center;
+  padding-top: 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 40px;
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px;
+  }
+  
+  .app-content {
+    padding: 15px;
+  }
+  
+  .upload-container {
+    padding: 30px 10px;
+  }
+  
+  .mode-button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .tool-button, .import-label {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  .app-header h1 {
+    font-size: 24px;
+  }
+}
