@@ -10,8 +10,7 @@ const CoordinateExtractor = ({
   onSaveCoordinates, 
   imageName: initialImageName,
   onUploadNew,
-  onImportCoordinates,
-  onExportCoordinates
+  onImportCoordinates
 }) => {
   // Load coordinates and name from localStorage if available
   const loadSavedData = () => {

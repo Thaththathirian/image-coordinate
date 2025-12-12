@@ -39,6 +39,15 @@ const Instructions = ({ onClose }) => {
       <p className="text-gray-700">
         The coordinates will scale responsively across different screen sizes.
       </p>
+
+      <div className="mt-6 flex justify-center">
+        <button
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          onClick={onClose}
+        >
+          Close
+        </button>
+      </div>
     </div>
   );
 };

@@ -8,8 +8,7 @@ const DiagramViewer = ({
   imageName, 
   setCoordinates,
   onUploadNew,
-  onImportCoordinates,
-  onExportCoordinates
+  onImportCoordinates
 }) => {
   const [scale, setScale] = useState(1);
   const [imageLoaded, setImageLoaded] = useState(false);

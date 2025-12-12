@@ -10,10 +10,17 @@ function App() {
   const [diagramSrc, setDiagramSrc] = useState(null);
   const [coordinates, setCoordinates] = useState([]);
   const [imageName, setImageName] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   // Load previously saved state on component mount
   useEffect(() => {
     try {
+      // restore last selected mode
+      const savedMode = localStorage.getItem('diagram-last-mode');
+      if (savedMode === 'viewer' || savedMode === 'extractor') {
+        setMode(savedMode);
+      }
+
       // Try to load the last active diagram
       const lastSession = localStorage.getItem('diagram-last-session');
       if (lastSession) {
@@ -34,6 +41,8 @@ function App() {
       }
     } catch (err) {
       console.error("Error loading saved session:", err);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -50,9 +59,29 @@ function App() {
       }
     }
   }, [diagramSrc, imageName]);
+
+  // Persist selected mode so refresh keeps user on same tab
+  useEffect(() => {
+    try {
+      localStorage.setItem('diagram-last-mode', mode);
+    } catch (err) {
+      console.error("Error saving mode:", err);
+    }
+  }, [mode]);
   
   // Main route handler based on current state
   const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center py-16 text-gray-600">
+          <div className="flex items-center gap-3">
+            <span className="h-4 w-4 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+            <span>Loading…</span>
+          </div>
+        </div>
+      );
+    }
+
     if (!diagramSrc) {
       return (
         <UploadScreen 
@@ -76,9 +105,6 @@ function App() {
             setCoordinates(newCoords);
             if (newName) setImageName(newName);
           }}
-          onExportCoordinates={() => {
-            // Export functionality handled within the component
-          }}
         />
       );
     } else {
@@ -95,9 +121,6 @@ function App() {
           onImportCoordinates={(newCoords, newName) => {
             setCoordinates(newCoords);
             if (newName) setImageName(newName);
-          }}
-          onExportCoordinates={() => {
-            // Export functionality handled within the component
           }}
         />
       );
