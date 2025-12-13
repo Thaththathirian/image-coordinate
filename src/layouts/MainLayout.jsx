@@ -48,8 +48,8 @@ const MainLayout = ({ children, mode, setMode, showControls }) => {
       <footer className="text-center py-4 text-gray-600 text-sm border-t border-gray-200 mt-8">
         <p>
         Image Coordinator © {new Date().getFullYear()} | 
-          <button 
-            className="text-blue-500 hover:text-blue-700 mx-1 underline"
+          <button
+            className="text-blue-500 hover:text-blue-700 mx-1 underline cursor-pointer"
             onClick={() => setShowInstructions(true)}
           >
             Show Instructions

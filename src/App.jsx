@@ -4,21 +4,32 @@ import MainLayout from './layouts/MainLayout';
 import DiagramViewer from './components/DiagramViewer';
 import CoordinateExtractor from './components/CoordinateExtractor';
 import UploadScreen from './components/UploadScreen';
+import { useNetworkStatus } from './hooks/useNetworkStatus';
 
 function App() {
   const [mode, setMode] = useState('viewer'); // 'viewer' or 'extractor'
+
+  const handleSetMode = (newMode) => {
+    console.log('Setting mode from', mode, 'to', newMode);
+    setMode(newMode);
+  };
   const [diagramSrc, setDiagramSrc] = useState(null);
   const [coordinates, setCoordinates] = useState([]);
   const [imageName, setImageName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const isOnline = useNetworkStatus();
 
   // Load previously saved state on component mount
   useEffect(() => {
     try {
       // restore last selected mode
       const savedMode = localStorage.getItem('diagram-last-mode');
+      console.log('Loading saved mode:', savedMode);
       if (savedMode === 'viewer' || savedMode === 'extractor') {
-        setMode(savedMode);
+        handleSetMode(savedMode);
+        console.log('Mode set to:', savedMode);
+      } else {
+        console.log('No valid saved mode found, using default');
       }
 
       // Try to load the last active diagram
@@ -28,7 +39,7 @@ function App() {
         if (imageName && imageData) {
           setImageName(imageName);
           setDiagramSrc(imageData);
-          
+
           // Load coordinates for this image
           const savedData = localStorage.getItem(`diagram-coordinates-${imageName}`);
           if (savedData) {
@@ -63,6 +74,7 @@ function App() {
   // Persist selected mode so refresh keeps user on same tab
   useEffect(() => {
     try {
+      console.log('Saving mode to localStorage:', mode);
       localStorage.setItem('diagram-last-mode', mode);
     } catch (err) {
       console.error("Error saving mode:", err);
@@ -84,19 +96,42 @@ function App() {
 
     if (!diagramSrc) {
       return (
-        <UploadScreen 
+        <UploadScreen
           onFileUpload={(src, name) => {
             setDiagramSrc(src);
             setImageName(name);
-          }} 
+          }}
+          isOnline={isOnline}
         />
       );
     }
-    
+
+    // Show offline message when working with cached content
+    if (!isOnline) {
+      return (
+        <div className="space-y-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 text-amber-800">
+              <span className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs">!</span>
+              <span className="font-medium">Working offline</span>
+            </div>
+            <p className="text-amber-700 text-sm mt-1">
+              You're viewing previously loaded content. Some features may be limited until you reconnect.
+            </p>
+          </div>
+          {renderMainContent()}
+        </div>
+      );
+    }
+
+    return renderMainContent();
+  };
+
+  const renderMainContent = () => {
     if (mode === 'viewer') {
       return (
-        <DiagramViewer 
-          imageSrc={diagramSrc} 
+        <DiagramViewer
+          imageSrc={diagramSrc}
           coordinates={coordinates}
           imageName={imageName}
           setCoordinates={setCoordinates}
@@ -109,12 +144,12 @@ function App() {
       );
     } else {
       return (
-        <CoordinateExtractor 
+        <CoordinateExtractor
           imageSrc={diagramSrc}
           initialCoordinates={coordinates}
           onSaveCoordinates={newCoordinates => {
             setCoordinates(newCoordinates);
-            setMode('viewer');
+            handleSetMode('viewer');
           }}
           imageName={imageName}
           onUploadNew={() => setDiagramSrc(null)}
@@ -130,7 +165,7 @@ function App() {
   return (
     <MainLayout
       mode={mode}
-      setMode={setMode}
+      setMode={handleSetMode}
       showControls={!!diagramSrc}
     >
       {renderContent()}
