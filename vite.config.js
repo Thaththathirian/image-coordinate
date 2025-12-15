@@ -6,4 +6,13 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   base: "./",
   plugins: [react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      input: {
+        main: './index.html',
+      }
+    }
+  },
+  // Ensure public assets are copied correctly
+  publicDir: 'public',
 });

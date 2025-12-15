@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(identify:*)",
+      "Bash(node generate-icons.js:*)",
+      "Bash(node create-valid-icons.mjs:*)",
+      "Bash(node generate-pngs-final.mjs:*)"
+    ]
+  }
+}

@@ -1,16 +1,14 @@
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v6';
 const STATIC_CACHE = `static-assets-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-assets-${CACHE_VERSION}`;
 const IMAGE_CACHE = `image-assets-${CACHE_VERSION}`;
 
 // Core shell that must be cached for the app to boot offline
 const APP_SHELL = [
-  '/',
   '/index.html',
-  './',
-  './index.html',
   '/manifest.webmanifest',
-  '/logo-dark.png',
+  '/icon-192.png',
+  '/icon-512.png',
 ];
 
 self.addEventListener('install', (event) => {

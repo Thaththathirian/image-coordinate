@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create PNG Icons for PWA</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { color: #0d6efd; margin-bottom: 20px; }
+    button {
+      background: #0d6efd;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+    button:hover { background: #0b5ed7; }
+    .preview {
+      display: flex;
+      gap: 30px;
+      margin: 30px 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .preview-item {
+      text-align: center;
+      padding: 20px;
+      border: 2px solid #0d6efd;
+      border-radius: 8px;
+      background: #f8f9fa;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      display: block;
+      margin: 10px auto;
+      border-radius: 4px;
+    }
+    .instructions {
+      background: #e7f3ff;
+      padding: 20px;
+      border-left: 4px solid #0d6efd;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .success {
+      background: #d1f4e0;
+      border-left-color: #28a745;
+      color: #155724;
+    }
+    .btn-download {
+      background: #28a745;
+      margin-top: 10px;
+    }
+    .btn-download:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 PWA Icon Generator (PNG)</h1>
+
+    <div class="instructions">
+      <strong>📋 Instructions:</strong>
+      <ol style="margin: 10px 0;">
+        <li>Click "Generate PNG Icons" button below</li>
+        <li>Download both 192x192 and 512x512 PNG icons</li>
+        <li>Save them in the <code>public</code> folder as:
+          <ul>
+            <li><code>icon-192.png</code></li>
+            <li><code>icon-512.png</code></li>
+          </ul>
+        </li>
+        <li>Rebuild your app: <code>npm run build</code></li>
+      </ol>
+    </div>
+
+    <div style="text-align: center;">
+      <button onclick="generateIcons()" style="font-size: 18px; padding: 15px 30px;">
+        🚀 Generate PNG Icons
+      </button>
+    </div>
+
+    <div class="preview" id="preview"></div>
+  </div>
+
+  <script>
+    function generateIcons() {
+      const preview = document.getElementById('preview');
+      preview.innerHTML = '<p style="font-size: 18px; color: #0d6efd;">⏳ Generating PNG icons...</p>';
+
+      setTimeout(() => {
+        preview.innerHTML = '';
+
+        // Generate 192x192 icon
+        createPNGIcon(192, 'icon-192.png');
+
+        // Generate 512x512 icon
+        createPNGIcon(512, 'icon-512.png');
+
+        // Show success message
+        const successDiv = document.createElement('div');
+        successDiv.className = 'instructions success';
+        successDiv.innerHTML = `
+          <strong>✅ Icons Generated Successfully!</strong>
+          <p style="margin: 10px 0 0 0;">Click the download buttons below, then copy the files to your <code>public</code> folder.</p>
+        `;
+        preview.insertBefore(successDiv, preview.firstChild);
+      }, 100);
+    }
+
+    function createPNGIcon(size, filename) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      // Create gradient background
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#0d6efd');
+      gradient.addColorStop(1, '#0b5ed7');
+
+      // Draw rounded rectangle background
+      const radius = size * 0.15;
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(size - radius, 0);
+      ctx.quadraticCurveTo(size, 0, size, radius);
+      ctx.lineTo(size, size - radius);
+      ctx.quadraticCurveTo(size, size, size - radius, size);
+      ctx.lineTo(radius, size);
+      ctx.quadraticCurveTo(0, size, 0, size - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      // Draw text "IC"
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${size * 0.4}px Arial, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('IC', size / 2, size / 2);
+
+      // Create preview with download button
+      const previewItem = document.createElement('div');
+      previewItem.className = 'preview-item';
+
+      const previewCanvas = document.createElement('canvas');
+      previewCanvas.width = size;
+      previewCanvas.height = size;
+      previewCanvas.style.maxWidth = size === 512 ? '256px' : '192px';
+      previewCanvas.style.maxHeight = size === 512 ? '256px' : '192px';
+
+      const previewCtx = previewCanvas.getContext('2d');
+      previewCtx.drawImage(canvas, 0, 0);
+
+      previewItem.innerHTML = `
+        <div><strong style="font-size: 20px; color: #0d6efd;">${size}×${size}</strong></div>
+      `;
+      previewItem.appendChild(previewCanvas);
+
+      const downloadBtn = document.createElement('button');
+      downloadBtn.className = 'btn-download';
+      downloadBtn.textContent = `⬇️ Download ${filename}`;
+      downloadBtn.onclick = () => downloadCanvas(canvas, filename);
+      previewItem.appendChild(downloadBtn);
+
+      document.getElementById('preview').appendChild(previewItem);
+    }
+
+    function downloadCanvas(canvas, filename) {
+      canvas.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // Show feedback
+        alert(`✅ ${filename} downloaded successfully!\n\nSave it to your 'public' folder.`);
+      }, 'image/png');
+    }
+  </script>
+</body>
+</html>
