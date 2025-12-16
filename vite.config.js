@@ -4,15 +4,13 @@ import react from "@vitejs/plugin-react";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "./",
+  base: "/generate/",
   plugins: [react(), tailwindcss()],
   build: {
+    outDir: "build/generate",
     rollupOptions: {
-      input: {
-        main: './index.html',
-      }
-    }
+      input: "./index.html",
+    },
   },
-  // Ensure public assets are copied correctly
-  publicDir: 'public',
+  publicDir: "public",
 });
