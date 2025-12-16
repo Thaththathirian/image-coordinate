@@ -69,7 +69,7 @@ export function usePWAInstallPrompt() {
   }, [deferredPrompt]);
 
   return {
-    canInstall: true, // Always show install button
+    canInstall: Boolean(deferredPrompt) || (isIOSDevice && !isInStandaloneMode()), // Show button when prompt is available OR on iOS
     requestInstall,
     isIOSDevice: isIOSDevice && !isInStandaloneMode(),
     isInstalled: installed,
