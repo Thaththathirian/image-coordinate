@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v6';
+const CACHE_VERSION = 'v7';
 const STATIC_CACHE = `static-assets-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-assets-${CACHE_VERSION}`;
 const IMAGE_CACHE = `image-assets-${CACHE_VERSION}`;
@@ -11,6 +11,9 @@ const APP_SHELL = [
   '/icons/icon-192.png',
   '/icons/icon-512.png',
 ];
+
+// Supported image extensions (only png, jpg, jpeg as requested)
+const SUPPORTED_IMAGE_EXTENSIONS = /\.(png|jpe?g)$/i;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -65,8 +68,8 @@ self.addEventListener('fetch', (event) => {
 
   // Same-origin assets: prefer cache, refresh in background
   if (requestUrl.origin === self.location.origin) {
-    // Special handling for assets that should be cached aggressively
-    if (requestUrl.pathname.match(/\.(png|jpg|jpeg|gif|svg|webp)$/i)) {
+    // Special handling for images (only png, jpg, jpeg)
+    if (requestUrl.pathname.match(SUPPORTED_IMAGE_EXTENSIONS)) {
       event.respondWith(cacheFirst(request, IMAGE_CACHE));
       return;
     }
@@ -164,8 +167,8 @@ async function cacheFirst(request, cacheName) {
     }
     return networkResponse;
   } catch (error) {
-    // Return a placeholder or error response for images
-    if (request.url.match(/\.(png|jpg|jpeg|gif|svg|webp)$/i)) {
+    // Return a placeholder or error response for images (only png, jpg, jpeg)
+    if (request.url.match(SUPPORTED_IMAGE_EXTENSIONS)) {
       return new Response('', {
         status: 404,
         statusText: 'Image not available offline'

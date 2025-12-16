@@ -5,6 +5,7 @@ import DiagramViewer from './components/DiagramViewer';
 import CoordinateExtractor from './components/CoordinateExtractor';
 import UploadScreen from './components/UploadScreen';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
+import { saveImageData, getImageData } from './utils/imageCache';
 
 function App() {
   const [mode, setMode] = useState('viewer'); // 'viewer' or 'extractor'
@@ -21,54 +22,82 @@ function App() {
 
   // Load previously saved state on component mount
   useEffect(() => {
-    try {
-      // restore last selected mode
-      const savedMode = localStorage.getItem('diagram-last-mode');
-      console.log('Loading saved mode:', savedMode);
-      if (savedMode === 'viewer' || savedMode === 'extractor') {
-        handleSetMode(savedMode);
-        console.log('Mode set to:', savedMode);
-      } else {
-        console.log('No valid saved mode found, using default');
-      }
+    async function loadSession() {
+      try {
+        // restore last selected mode
+        const savedMode = localStorage.getItem('diagram-last-mode');
+        console.log('Loading saved mode:', savedMode);
+        if (savedMode === 'viewer' || savedMode === 'extractor') {
+          handleSetMode(savedMode);
+          console.log('Mode set to:', savedMode);
+        } else {
+          console.log('No valid saved mode found, using default');
+        }
 
-      // Try to load the last active diagram
-      const lastSession = localStorage.getItem('diagram-last-session');
-      if (lastSession) {
-        const { imageName, imageData } = JSON.parse(lastSession);
-        if (imageName && imageData) {
-          setImageName(imageName);
-          setDiagramSrc(imageData);
+        // Try to load the last active diagram
+        const lastSession = localStorage.getItem('diagram-last-session');
+        if (lastSession) {
+          const { imageName } = JSON.parse(lastSession);
+          if (imageName) {
+            // Try to get image from IndexedDB first (more reliable for large images)
+            const imageDataFromDB = await getImageData(imageName);
 
-          // Load coordinates for this image
-          const savedData = localStorage.getItem(`diagram-coordinates-${imageName}`);
-          if (savedData) {
-            const { coordinates } = JSON.parse(savedData);
-            if (Array.isArray(coordinates)) {
-              setCoordinates(coordinates);
+            if (imageDataFromDB) {
+              console.log('Image loaded from IndexedDB:', imageName);
+              setImageName(imageName);
+              setDiagramSrc(imageDataFromDB);
+            } else {
+              // Fallback to localStorage if IndexedDB doesn't have it
+              const { imageData } = JSON.parse(lastSession);
+              if (imageData) {
+                console.log('Image loaded from localStorage:', imageName);
+                setImageName(imageName);
+                setDiagramSrc(imageData);
+                // Save to IndexedDB for future use
+                await saveImageData(imageName, imageData);
+              }
+            }
+
+            // Load coordinates for this image
+            const savedData = localStorage.getItem(`diagram-coordinates-${imageName}`);
+            if (savedData) {
+              const { coordinates } = JSON.parse(savedData);
+              if (Array.isArray(coordinates)) {
+                setCoordinates(coordinates);
+              }
             }
           }
         }
+      } catch (err) {
+        console.error("Error loading saved session:", err);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error("Error loading saved session:", err);
-    } finally {
-      setIsLoading(false);
     }
+
+    loadSession();
   }, []);
 
   // Save the current session whenever diagramSrc or imageName changes
   useEffect(() => {
-    if (diagramSrc && imageName) {
-      try {
-        localStorage.setItem('diagram-last-session', JSON.stringify({
-          imageName,
-          imageData: diagramSrc
-        }));
-      } catch (err) {
-        console.error("Error saving session:", err);
+    async function saveSession() {
+      if (diagramSrc && imageName) {
+        try {
+          // Save to localStorage (metadata + small reference)
+          localStorage.setItem('diagram-last-session', JSON.stringify({
+            imageName,
+            imageData: diagramSrc
+          }));
+
+          // Save full image data to IndexedDB (better for large images)
+          await saveImageData(imageName, diagramSrc);
+        } catch (err) {
+          console.error("Error saving session:", err);
+        }
       }
     }
+
+    saveSession();
   }, [diagramSrc, imageName]);
 
   // Persist selected mode so refresh keeps user on same tab

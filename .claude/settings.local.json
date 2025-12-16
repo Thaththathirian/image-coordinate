@@ -6,7 +6,8 @@
       "Bash(node generate-icons.js:*)",
       "Bash(node create-valid-icons.mjs:*)",
       "Bash(node generate-pngs-final.mjs:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(find:*)"
     ]
   }
 }
