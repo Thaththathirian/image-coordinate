@@ -5,10 +5,11 @@ const IMAGE_CACHE = `image-assets-${CACHE_VERSION}`;
 
 // Core shell that must be cached for the app to boot offline
 const APP_SHELL = [
+  '/',
   '/index.html',
   '/manifest.webmanifest',
-  '/icon-192.png',
-  '/icon-512.png',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
 ];
 
 self.addEventListener('install', (event) => {
@@ -81,90 +82,21 @@ self.addEventListener('fetch', (event) => {
 async function handleNavigation(event) {
   const cache = await caches.open(STATIC_CACHE);
 
-  // Match by request or fallback to the stored index.html
-  const cachedPage =
-    (await cache.match(event.request, { ignoreSearch: true })) ||
-    (await cache.match('/index.html')) ||
-    (await cache.match('index.html')) ||
-    (await cache.match('./index.html'));
-
   try {
     const networkResponse = await fetch(event.request);
-    // Cache the HTML page for offline use
-    if (networkResponse.ok) {
+    if (networkResponse && networkResponse.ok) {
       cache.put('/index.html', networkResponse.clone());
+      return networkResponse;
     }
-    return networkResponse;
+    throw new Error('Network failed');
   } catch {
-    // Always try to serve cached content when offline
-    if (cachedPage) {
-      return cachedPage;
-    }
-
-    // If no cached page is available, serve a simple HTML page that can load the app
-    return new Response(`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Image Coordinator - Offline</title>
-        <style>
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: #f3f4f6;
-            color: #374151;
-          }
-          .container {
-            text-align: center;
-            max-width: 400px;
-            padding: 2rem;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          }
-          .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #e5e7eb;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-          }
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="spinner"></div>
-          <h2>You're offline</h2>
-          <p>Loading your previously saved work...</p>
-          <p class="text-sm text-gray-600 mt-4">If this takes too long, please check your internet connection.</p>
-        </div>
-        <script>
-          // Try to reload the page after a short delay to allow network recovery
-          setTimeout(() => {
-            if (navigator.onLine) {
-              window.location.reload();
-            }
-          }, 3000);
-        </script>
-      </body>
-      </html>
-    `, {
-      headers: { 'Content-Type': 'text/html' },
-    });
+    return (
+      (await cache.match('/')) ||
+      (await cache.match('/index.html'))
+    );
   }
 }
+
 
 async function staleWhileRevalidate(request, cacheName) {
   const cache = await caches.open(cacheName);
@@ -262,7 +194,7 @@ async function cacheBlobRequest(request, cacheName) {
       cache.put(cacheKey, responseClone);
     }
     return networkResponse;
-  } catch (error) {
+  } catch {
     return new Response('', {
       status: 404,
       statusText: 'Blob not available offline'
@@ -286,7 +218,7 @@ async function cacheDataRequest(request, cacheName) {
       cache.put(request, responseClone);
     }
     return networkResponse;
-  } catch (error) {
+  } catch {
     // For data URLs, we can try to return the original request
     return fetch(request).catch(() => {
       return new Response('', {
